@@ -1,18 +1,45 @@
 # Single-Precision A•X Plus Y (SAXPY) Function
-*Single-Precision A·X Plus Y* is a standard Basic Linear Algebra Subroutines (BLAS) library function. SAXPY combines scalar multiplication and vector addition, which takes a scalar value A, two vectors of 32-bit floats X and Y with N elements each as inputs. It multiplies each element X[i] by A and adds the result to Y[i]. The C kernel implementation:
+*Single-Precision A·X Plus Y* is a standard Basic Linear Algebra Subroutines (BLAS) library function. SAXPY combines scalar multiplication and vector addition, which takes a scalar value A, two vectors of 32-bit floats X and Y with N elements each as inputs. It multiplies each element X[i] by A and adds the result to Y[I]. 
 
-
+The C kernel implementation:
 ```
 void saxpyC(int n, float a, float* x, float* y, float* z) {
 	for (int i = 0; i < n; i++) {
 		z[i] = a * x[i] + y[i];
 	}
 }
+
 ...
+
 // Calling the saxpyC function in main
 saxpyC(vectorN, scalarA, x, y, z);
 ```
 
+The x86-64 kernel implementation:
+```
+// Declare saxpyASM function
+extern float saxpyASM(float scalarA, float x, float y);
+
+...
+
+section .text
+bits 64
+default rel
+
+global saxpyASM
+
+saxpyASM:
+	vmulss xmm0, xmm1, xmm0
+	vaddss xmm0, xmm0, xmm2
+	ret
+
+...
+
+// Calling the saxpyASM function in main
+for (int i = 0; i < vectorN; i++) {
+	asmZ[i] = saxpyASM(scalarA, x[i], y[I]);
+}
+```
 
 ## LBYARCH S17 Group 3
 - Amelia Joyce Abenoja
